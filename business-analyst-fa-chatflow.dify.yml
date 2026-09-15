@@ -1,0 +1,1215 @@
+version: "0.6.0"
+kind: app
+app:
+  name: "تحلیلگر کسب‌وکار — نسخه‌بندی نیازمندی"
+  mode: advanced-chat
+  description: "دستیار تحلیلگر کسب‌وکار فارسی با قوانین سخت‌گیرانه سازمان، بارگذاری RFP، نسخه‌بندی نیازمندی و نمونه HTML."
+  icon: "\U0001F4CB"
+  icon_background: "#E8F4FD"
+  icon_type: emoji
+  use_icon_as_answer_icon: false
+dependencies: []
+workflow:
+  environment_variables: []
+  conversation_variables:
+    - id: "cv-org-hard-rules"
+      name: org_hard_rules
+      value_type: string
+      description: "قوانین و استانداردهای اجباری سازمان (قابل بارگذاری یا به‌روزرسانی)"
+      value: |
+        [قوانین پیش‌فرض — پس از بارگذاری فایل استاندارد، این متن جایگزین می‌شود]
+        1) زبان رابط کاربری: فارسی، راست‌به‌چپ (RTL)، تقویم شمسی در نمایش تاریخ.
+        2) احراز هویت: یکپارچه با SSO سازمان؛ فرمت نام کاربری = کد پرسنلی ۸ رقمی؛ ورود با OTP پیامکی در صورت نیاز.
+        3) فرم‌ها: برچسب بالای فیلد، پیام خطای فارسی، فیلدهای اجباری با *، دکمه اصلی «ذخیره» سمت راست.
+        4) جداول: صفحه‌بندی، جستجو، خروجی Excel؛ ستون عملیات در سمت چپ.
+        5) رنگ و چیدمان: مطابق Design System یکپارچه (هدر ثابت، منوی کناری، breadcrumb).
+        6) یکپارچگی: API REST با JSON؛ شناسه‌های مرجع از سامانه‌های HR/مالی موجود.
+        7) امنیت: RBAC، لاگ ممیزی، عدم ذخیره رمز عبور در لاگ.
+    - id: "cv-draft-req"
+      name: draft_requirements
+      value_type: string
+      description: "پیش‌نویس تجمیعی نیازمندی‌های نسخه جاری (قبل از قطع نسخه)"
+      value: ""
+    - id: "cv-version-num"
+      name: current_version_number
+      value_type: number
+      description: "آخرین شماره نسخه قطع‌شده"
+      value: 0
+    - id: "cv-version-records"
+      name: version_records
+      value_type: array[object]
+      description: "آرشیو نسخه‌های قطع‌شده"
+      value: []
+    - id: "cv-project-title"
+      name: project_title
+      value_type: string
+      description: "عنوان پروژه / سامانه درخواستی"
+      value: ""
+    - id: "cv-last-file-text"
+      name: last_uploaded_file_text
+      value_type: string
+      description: "متن استخراج‌شده از فایل‌های همین نوبت گفتگو"
+      value: ""
+  features:
+    file_upload:
+      enabled: true
+      allowed_file_types:
+        - document
+        - image
+      allowed_file_extensions:
+        - .PDF
+        - .DOC
+        - .DOCX
+        - .TXT
+        - .MD
+        - .CSV
+        - .JSON
+        - .YAML
+        - .YML
+        - .XLS
+        - .XLSX
+        - .HTML
+        - .HTM
+      allowed_file_upload_methods:
+        - local_file
+        - remote_url
+      number_limits: 5
+      image:
+        enabled: true
+        number_limits: 3
+        transfer_methods:
+          - local_file
+          - remote_url
+    opening_statement: |
+      سلام. من **تحلیلگر کسب‌وکار** سامانه‌های یکپارچه شما هستم.
+
+      **کارهایی که انجام می‌دهم:**
+      - دریافت و **رعایت قوانین سخت‌گیرانه** (استاندارد فرم، ورود، یکپارچگی)
+      - جمع‌آوری نیازمندی از گفتگو و **فایل RFP / نیازمندی**
+      - **قطع نسخه** (نه تغییر بی‌پایان روی یک RFP)
+      - ساخت **نمونه HTML فارسی** با داده نمایشی
+
+      **راهنما:** فایل را پیوست کنید یا بنویسید:
+      - «قوانین سازمان را از این فایل بخوان»
+      - «این نیاز را ثبت کن»
+      - «نسخه را قطع کن»
+      - «نمونه HTML بساز»
+    suggested_questions:
+      - "قوانین و استاندارد UI/ورود سازمان را از فایل پیوست به‌روز کن"
+      - "نیاز جدید: فرم ثبت درخواست با فیلدهای ضروری"
+      - "نسخه فعلی نیازمندی را قطع و مستند کن"
+      - "بر اساس نسخه فعلی یک نمونه HTML فارسی با داده دمو بساز"
+    suggested_questions_after_answer:
+      enabled: true
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    text_to_speech:
+      enabled: false
+  graph:
+    edges:
+      - id: "1738000001001-source-1738000002001-target"
+        source: "1738000001001"
+        sourceHandle: source
+        target: "1738000002001"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: start
+          targetType: if-else
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000002001-true-1738000003001-target"
+        source: "1738000002001"
+        sourceHandle: "case-has-files"
+        target: "1738000003001"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: if-else
+          targetType: document-extractor
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000002001-false-1738000003501-target"
+        source: "1738000002001"
+        sourceHandle: "false"
+        target: "1738000003501"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: if-else
+          targetType: template-transform
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000003001-source-1738000003051-target"
+        source: "1738000003001"
+        sourceHandle: source
+        target: "1738000003051"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: document-extractor
+          targetType: code
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000003051-source-1738000003601-target"
+        source: "1738000003051"
+        sourceHandle: source
+        target: "1738000003601"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: assigner
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000003501-source-1738000003602-target"
+        source: "1738000003501"
+        sourceHandle: source
+        target: "1738000003602"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: template-transform
+          targetType: assigner
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000003601-source-1738000004001-target"
+        source: "1738000003601"
+        sourceHandle: source
+        target: "1738000004001"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: assigner
+          targetType: question-classifier
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000003602-source-1738000004001-target"
+        source: "1738000003602"
+        sourceHandle: source
+        target: "1738000004001"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: assigner
+          targetType: question-classifier
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000004001-cls-rules-1738000006001-target"
+        source: "1738000004001"
+        sourceHandle: "cls-rules"
+        target: "1738000006001"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: question-classifier
+          targetType: llm
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000004001-cls-req-1738000007001-target"
+        source: "1738000004001"
+        sourceHandle: "cls-req"
+        target: "1738000007001"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: question-classifier
+          targetType: llm
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000004001-cls-version-1738000008001-target"
+        source: "1738000004001"
+        sourceHandle: "cls-version"
+        target: "1738000008001"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: question-classifier
+          targetType: llm
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000004001-cls-demo-1738000009001-target"
+        source: "1738000004001"
+        sourceHandle: "cls-demo"
+        target: "1738000009001"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: question-classifier
+          targetType: llm
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000004001-cls-general-1738000010001-target"
+        source: "1738000004001"
+        sourceHandle: "cls-general"
+        target: "1738000010001"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: question-classifier
+          targetType: llm
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000006001-source-1738000011101-target"
+        source: "1738000006001"
+        sourceHandle: source
+        target: "1738000011101"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: llm
+          targetType: code
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000011101-source-1738000011001-target"
+        source: "1738000011101"
+        sourceHandle: source
+        target: "1738000011001"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: assigner
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000011001-source-1738000015001-target"
+        source: "1738000011001"
+        sourceHandle: source
+        target: "1738000015001"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: assigner
+          targetType: answer
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000007001-source-1738000012101-target"
+        source: "1738000007001"
+        sourceHandle: source
+        target: "1738000012101"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: llm
+          targetType: code
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000012101-source-1738000012001-target"
+        source: "1738000012101"
+        sourceHandle: source
+        target: "1738000012001"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: assigner
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000012001-source-1738000016001-target"
+        source: "1738000012001"
+        sourceHandle: source
+        target: "1738000016001"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: assigner
+          targetType: answer
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000008001-source-1738000013001-target"
+        source: "1738000008001"
+        sourceHandle: source
+        target: "1738000013001"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: llm
+          targetType: code
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000013001-source-1738000013101-target"
+        source: "1738000013001"
+        sourceHandle: source
+        target: "1738000013101"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: assigner
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000013101-source-1738000017001-target"
+        source: "1738000013101"
+        sourceHandle: source
+        target: "1738000017001"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: assigner
+          targetType: answer
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000009001-source-1738000018001-target"
+        source: "1738000009001"
+        sourceHandle: source
+        target: "1738000018001"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: llm
+          targetType: answer
+          isInIteration: false
+          isInLoop: false
+      - id: "1738000010001-source-1738000019001-target"
+        source: "1738000010001"
+        sourceHandle: source
+        target: "1738000019001"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: llm
+          targetType: answer
+          isInIteration: false
+          isInLoop: false
+    nodes:
+      - id: "1738000001001"
+        type: custom
+        position:
+          x: 80
+          y: 300
+        width: 244
+        height: 54
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: start
+          title: شروع
+          desc: ""
+          variables: []
+      - id: "1738000002001"
+        type: custom
+        position:
+          x: 380
+          y: 300
+        width: 244
+        height: 126
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: if-else
+          title: فایل پیوست شده؟
+          desc: ""
+          cases:
+            - case_id: "case-has-files"
+              logical_operator: and
+              conditions:
+                - id: "cond-files-not-empty"
+                  variable_selector:
+                    - sys
+                    - files
+                  comparison_operator: not empty
+                  value: ""
+                  varType: array[file]
+      - id: "1738000003001"
+        type: custom
+        position:
+          x: 680
+          y: 180
+        width: 244
+        height: 54
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: document-extractor
+          title: استخراج متن فایل
+          desc: ""
+          is_array_file: true
+          variable_selector:
+            - sys
+            - files
+      - id: "1738000003051"
+        type: custom
+        position:
+          x: 830
+          y: 180
+        width: 244
+        height: 98
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: code
+          title: تجمیع متن فایل‌ها
+          desc: ""
+          code_language: python3
+          variables:
+            - variable: extracted
+              value_selector:
+                - "1738000003001"
+                - text
+          code: |
+            def main(extracted) -> dict:
+                if extracted is None:
+                    return {"file_text": ""}
+                if isinstance(extracted, list):
+                    parts = [str(p).strip() for p in extracted if str(p).strip()]
+                    return {"file_text": "\n\n---\n\n".join(parts)}
+                return {"file_text": str(extracted)}
+          outputs:
+            file_text:
+              type: string
+              children: null
+      - id: "1738000003501"
+        type: custom
+        position:
+          x: 680
+          y: 420
+        width: 244
+        height: 54
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: template-transform
+          title: بدون فایل
+          desc: ""
+          template: " "
+          variables: []
+      - id: "1738000003601"
+        type: custom
+        position:
+          x: 1080
+          y: 180
+        width: 244
+        height: 98
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: assigner
+          title: ذخیره متن فایل (با پیوست)
+          desc: ""
+          version: "2"
+          items:
+            - variable_selector:
+                - conversation
+                - last_uploaded_file_text
+              input_type: variable
+              operation: over-write
+              value:
+                - "1738000003051"
+                - file_text
+      - id: "1738000003602"
+        type: custom
+        position:
+          x: 1080
+          y: 420
+        width: 244
+        height: 98
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: assigner
+          title: پاک کردن متن فایل (بدون پیوست)
+          desc: ""
+          version: "2"
+          items:
+            - variable_selector:
+                - conversation
+                - last_uploaded_file_text
+              operation: clear
+      - id: "1738000004001"
+        type: custom
+        position:
+          x: 1280
+          y: 300
+        width: 244
+        height: 178
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: question-classifier
+          title: تشخیص نیت کاربر
+          desc: ""
+          query_variable_selector:
+            - sys
+            - query
+          model:
+            provider: langgenius/openai_api_compatible/openai_api_compatible
+            name: openai/gpt-4o
+            mode: chat
+            completion_params:
+              temperature: 0.2
+          classes:
+            - id: "cls-rules"
+              name: "به‌روزرسانی یا بارگذاری قوانین سخت‌گیرانه سازمان (استاندارد UI، ورود، یکپارچگی)"
+            - id: "cls-req"
+              name: "ثبت، اصلاح یا جمع‌آوری نیازمندی / User Story در پیش‌نویس نسخه جاری"
+            - id: "cls-version"
+              name: "قطع نسخه، freeze، بستن دوره تغییرات RFP، مستندسازی نسخه"
+            - id: "cls-demo"
+              name: "ساخت یا نمایش نمونه HTML / پروتوتип رابط فارسی با داده دمو"
+            - id: "cls-general"
+              name: "گفتگوی تحلیل کسب‌وکار، سؤال، شفاف‌سازی، چالش سازنده"
+          instruction: |
+            زبان کاربر فارسی است. اگر هم‌زمان فایل RFP/استاندارد آپلود شده و متن مبهم است،
+            اولویت با «قوانین» وقتی کاربر از استاندارد/قوانین/Design System صحبت کند؛
+            با «ثبت نیاز» وقتی از قابلیت/فرم/گردش کار صحبت کند؛
+            با «قطع نسخه» وقتی freeze/نسخه/تحویل فاز/بستن تغییرات گفت؛
+            با «HTML» وقتی نمونه/دمو/پروتوتип/رابط خواست.
+          memory:
+            query_prompt_template: "{{#sys.query#}}"
+            window:
+              enabled: true
+              size: 8
+          vision:
+            enabled: false
+      - id: "1738000006001"
+        type: custom
+        position:
+          x: 1580
+          y: 80
+        width: 244
+        height: 98
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: llm
+          title: تحلیل قوانین سازمان
+          desc: ""
+          model:
+            provider: langgenius/openai_api_compatible/openai_api_compatible
+            name: openai/gpt-4o
+            mode: chat
+            completion_params:
+              temperature: 0.3
+              max_tokens: 4096
+          prompt_template:
+            - id: "pt-rules-sys"
+              role: system
+              text: |
+                تو تحلیلگر کسب‌وکار ارشد هستی. خروجی همیشه فارسی.
+                وظیفه: استخراج/ادغام «قوانین سخت‌گیرانه» از پیام کاربر و متن فایل.
+                قوانین باید قابل اجرا برای تیم توسعه باشند (ورود، فرم، layout، API، امنیت).
+                اگر متن با قوانین قبلی تعارض دارد، تعارض را صریح بنویس و نسخه یکپارچه پیشنهاد بده.
+                در پایان بخش جداگانه با عنوان دقیق:
+                ===ORG_RULES_CANONICAL===
+                (فقط متن قوانین نهایی برای ذخیره در سیستم)
+                ===END_ORG_RULES===
+            - id: "pt-rules-user"
+              role: user
+              text: |
+                پیام کاربر:
+                {{#sys.query#}}
+
+                قوانین فعلی ذخیره‌شده:
+                {{#conversation.org_hard_rules#}}
+
+                متن استخراج‌شده از فایل این نوبت (در صورت خالی بودن نادیده بگیر):
+                {{#conversation.last_uploaded_file_text#}}
+
+                پاسخ: خلاصه تغییرات + تعارض‌ها + بلوک ORG_RULES_CANONICAL
+          variables: []
+          context:
+            enabled: false
+            variable_selector: []
+          vision:
+            enabled: false
+          memory:
+            query_prompt_template: "{{#sys.query#}}"
+            window:
+              enabled: true
+              size: 6
+      - id: "1738000007001"
+        type: custom
+        position:
+          x: 1580
+          y: 220
+        width: 244
+        height: 98
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: llm
+          title: ثبت نیازمندی
+          desc: ""
+          model:
+            provider: langgenius/openai_api_compatible/openai_api_compatible
+            name: openai/gpt-4o
+            mode: chat
+            completion_params:
+              temperature: 0.4
+              max_tokens: 4096
+          prompt_template:
+            - id: "pt-req-sys"
+              role: system
+              text: |
+                تو تحلیلگر کسب‌وکار هستی. زبان: فارسی.
+                اصل: به درخواست صریح کاربر پایبند باش، اما نیاز واقعی پشت درخواست را با سؤال‌های هدفمند (حداکثر ۳ سؤال) کشف کن.
+                هر نیاز را با قوانین سازمان تطبیق بده؛ نقض قانون = «رد/نیاز به استثناء» با دلیل.
+                خروجی ساخت‌یافته:
+                1) فهم از نیاز
+                2) موارد پذیرفته‌شده (شناسه REQ-xxx)
+                3) موارد نیازمند توضیح
+                4) مغایرت با قوانین
+                5) پیشنهاد تحلیلگر (در صورت بهبود بدون دور زدن خواست کاربر)
+                در پایان بلوک:
+                ===DRAFT_APPEND===
+                (متن markdown تجمیعی پیش‌نویس نسخه جاری؛ شامل همه REQها تا این لحظه)
+                ===END_DRAFT===
+            - id: "pt-req-user"
+              role: user
+              text: |
+                پیام کاربر:
+                {{#sys.query#}}
+
+                عنوان پروژه: {{#conversation.project_title#}}
+                شماره آخرین نسخه قطع‌شده: {{#conversation.current_version_number#}}
+                پیش‌نویس فعلی:
+                {{#conversation.draft_requirements#}}
+
+                قوانین سازمان:
+                {{#conversation.org_hard_rules#}}
+
+                متن فایل این نوبت:
+                {{#conversation.last_uploaded_file_text#}}
+          variables: []
+          context:
+            enabled: false
+            variable_selector: []
+          vision:
+            enabled: false
+          memory:
+            query_prompt_template: "{{#sys.query#}}"
+            window:
+              enabled: true
+              size: 10
+      - id: "1738000008001"
+        type: custom
+        position:
+          x: 1580
+          y: 360
+        width: 244
+        height: 98
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: llm
+          title: مستند نسخه قطع‌شده
+          desc: ""
+          model:
+            provider: langgenius/openai_api_compatible/openai_api_compatible
+            name: openai/gpt-4o
+            mode: chat
+            completion_params:
+              temperature: 0.3
+              max_tokens: 6000
+          prompt_template:
+            - id: "pt-ver-sys"
+              role: system
+              text: |
+                تحلیلگر کسب‌وکار. فارسی.
+                کاربر می‌خواهد «نسخه» قطع شود — دیگر تغییر بی‌پایان روی همان دوره RFP مجاز نیست مگر نسخه بعد.
+                خروجی: سند نسخه شامل: خلاصه مدیریتی، دامنه، نیازمندی‌های تابعی/غیرتابعی، وابستگی‌ها،
+                Risks، فرضیات، موارد باز (Open Points)، چک‌لیست انطباق با قوانین سازمان.
+                اگر پیش‌نویس خالی است، به کاربر بگو قبل از قطع نسخه نیاز ثبت شود.
+                بلوک نهایی:
+                ===VERSION_DOCUMENT===
+                (متن کامل سند نسخه)
+                ===END_VERSION===
+            - id: "pt-ver-user"
+              role: user
+              text: |
+                درخواست: {{#sys.query#}}
+                پروژه: {{#conversation.project_title#}}
+                پیش‌نویس: {{#conversation.draft_requirements#}}
+                قوانین: {{#conversation.org_hard_rules#}}
+                نسخه‌های قبلی (JSON): {{#conversation.version_records#}}
+          variables: []
+          context:
+            enabled: false
+            variable_selector: []
+          vision:
+            enabled: false
+          memory:
+            query_prompt_template: "{{#sys.query#}}"
+            window:
+              enabled: false
+              size: 10
+      - id: "1738000009001"
+        type: custom
+        position:
+          x: 1580
+          y: 500
+        width: 244
+        height: 98
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: llm
+          title: تولید HTML دمو
+          desc: ""
+          model:
+            provider: langgenius/openai_api_compatible/openai_api_compatible
+            name: openai/gpt-4o
+            mode: chat
+            completion_params:
+              temperature: 0.5
+              max_tokens: 8000
+          prompt_template:
+            - id: "pt-demo-sys"
+              role: system
+              text: |
+                تو طراح رابط و تحلیلگر BA هستی.
+                یک فایل HTML5 کامل و خودکفا تولید کن (inline CSS، بدون وابستگی CDN خارجی در صورت امکان).
+                الزامات: lang="fa" dir="rtl"، فونت system-ui، داده‌های دمو فارسی واقع‌گرایانه (نام، تاریخ شمسی نمونه، مبالغ ریال).
+                رابط باید شبیه سامانه یکپارچه سازمان باشد و قوانین layout/فرم/ورود را رعایت کند.
+                فقط HTML خام خروجی بده — بدون markdown و بدون ``` .
+                اگر نیاز کافی نیست، ابتدا ۲ سؤال کوتاه فارسی در HTML comment بنویس سپس بهترین حدس را پیاده کن.
+            - id: "pt-demo-user"
+              role: user
+              text: |
+                درخواست کاربر: {{#sys.query#}}
+                پیش‌نویس نیاز: {{#conversation.draft_requirements#}}
+                آخرین نسخه قطع‌شده (#{{#conversation.current_version_number#}}): مراجعه به آرشیو
+                قوانین UI/ورود:
+                {{#conversation.org_hard_rules#}}
+                متن فایل: {{#conversation.last_uploaded_file_text#}}
+          variables: []
+          context:
+            enabled: false
+            variable_selector: []
+          vision:
+            enabled: false
+          memory:
+            query_prompt_template: "{{#sys.query#}}"
+            window:
+              enabled: true
+              size: 6
+      - id: "1738000010001"
+        type: custom
+        position:
+          x: 1580
+          y: 640
+        width: 244
+        height: 98
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: llm
+          title: گفتگوی BA
+          desc: ""
+          model:
+            provider: langgenius/openai_api_compatible/openai_api_compatible
+            name: openai/gpt-4o
+            mode: chat
+            completion_params:
+              temperature: 0.6
+              max_tokens: 3000
+          prompt_template:
+            - id: "pt-gen-sys"
+              role: system
+              text: |
+                تحلیلگر کسب‌وکار حرفه‌ای، فارسی، محترم و دقیق.
+                strict به خواست صریح کاربر؛ در عین حال با پرسش‌های SMART نیاز اصلی را روشن کن.
+                به نسخه‌بندی یادآوری کن: تغییرات بی‌پایان RFP مجاز نیست — پیشنهاد «ثبت نیاز» یا «قطع نسخه» بده.
+                وضعیت: نسخه={{#conversation.current_version_number#}}، پیش‌نویس موجود={{#conversation.draft_requirements#}}
+            - id: "pt-gen-user"
+              role: user
+              text: |
+                {{#sys.query#}}
+                قوانین: {{#conversation.org_hard_rules#}}
+                فایل: {{#conversation.last_uploaded_file_text#}}
+          variables: []
+          context:
+            enabled: false
+            variable_selector: []
+          vision:
+            enabled: false
+          memory:
+            query_prompt_template: "{{#sys.query#}}"
+            window:
+              enabled: true
+              size: 12
+      - id: "1738000011001"
+        type: custom
+        position:
+          x: 1880
+          y: 80
+        width: 244
+        height: 98
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: assigner
+          title: ذخیره قوانین
+          desc: ""
+          version: "2"
+          items:
+            - variable_selector:
+                - conversation
+                - org_hard_rules
+              input_type: variable
+              operation: over-write
+              value:
+                - "1738000011101"
+                - canonical_rules
+      - id: "1738000011101"
+        type: custom
+        position:
+          x: 1780
+          y: 80
+        width: 244
+        height: 98
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: code
+          title: استخراج بلوک قوانین
+          desc: ""
+          code_language: python3
+          variables:
+            - variable: llm_text
+              value_selector:
+                - "1738000006001"
+                - text
+          code: |
+            def main(llm_text: str) -> dict:
+                text = llm_text or ""
+                start = text.find("===ORG_RULES_CANONICAL===")
+                end = text.find("===END_ORG_RULES===")
+                canonical = text
+                if start != -1 and end != -1 and end > start:
+                    canonical = text[start + len("===ORG_RULES_CANONICAL==="):end].strip()
+                display = text
+                if start != -1:
+                    display = text[:start].strip()
+                return {
+                    "canonical_rules": canonical,
+                    "display_reply": display or "قوانین به‌روزرسانی شد.",
+                }
+          outputs:
+            canonical_rules:
+              type: string
+              children: null
+            display_reply:
+              type: string
+              children: null
+      - id: "1738000012001"
+        type: custom
+        position:
+          x: 1880
+          y: 220
+        width: 244
+        height: 98
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: assigner
+          title: ذخیره پیش‌نویس
+          desc: ""
+          version: "2"
+          items:
+            - variable_selector:
+                - conversation
+                - draft_requirements
+              input_type: variable
+              operation: over-write
+              value:
+                - "1738000012101"
+                - draft_text
+            - variable_selector:
+                - conversation
+                - project_title
+              input_type: variable
+              operation: over-write
+              value:
+                - "1738000012101"
+                - project_title
+      - id: "1738000012101"
+        type: custom
+        position:
+          x: 1780
+          y: 220
+        width: 244
+        height: 98
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: code
+          title: استخراج پیش‌نویس
+          desc: ""
+          code_language: python3
+          variables:
+            - variable: llm_text
+              value_selector:
+                - "1738000007001"
+                - text
+            - variable: user_query
+              value_selector:
+                - sys
+                - query
+            - variable: existing_title
+              value_selector:
+                - conversation
+                - project_title
+          code: |
+            def main(llm_text: str, user_query: str, existing_title: str) -> dict:
+                text = llm_text or ""
+                start = text.find("===DRAFT_APPEND===")
+                end = text.find("===END_DRAFT===")
+                draft = text
+                if start != -1 and end != -1 and end > start:
+                    draft = text[start + len("===DRAFT_APPEND==="):end].strip()
+                display = text
+                if start != -1:
+                    display = text[:start].strip()
+                title = (existing_title or "").strip()
+                q = (user_query or "").strip()
+                if q and not title:
+                    title = q[:120]
+                return {
+                    "draft_text": draft,
+                    "display_reply": display or text,
+                    "project_title": title,
+                }
+          outputs:
+            draft_text:
+              type: string
+              children: null
+            display_reply:
+              type: string
+              children: null
+            project_title:
+              type: string
+              children: null
+      - id: "1738000013001"
+        type: custom
+        position:
+          x: 1880
+          y: 360
+        width: 244
+        height: 98
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: code
+          title: قطع نسخه در حافظه
+          desc: ""
+          code_language: python3
+          variables:
+            - variable: llm_text
+              value_selector:
+                - "1738000008001"
+                - text
+            - variable: version_records
+              value_selector:
+                - conversation
+                - version_records
+            - variable: current_version_number
+              value_selector:
+                - conversation
+                - current_version_number
+            - variable: draft_requirements
+              value_selector:
+                - conversation
+                - draft_requirements
+            - variable: project_title
+              value_selector:
+                - conversation
+                - project_title
+          code: |
+            def main(llm_text, version_records, current_version_number, draft_requirements, project_title):
+                text = llm_text or ""
+                start = text.find("===VERSION_DOCUMENT===")
+                end = text.find("===END_VERSION===")
+                doc = text.strip()
+                if start != -1 and end != -1 and end > start:
+                    doc = text[start + len("===VERSION_DOCUMENT==="):end].strip()
+                display = text[:start].strip() if start != -1 else text
+                records = list(version_records or [])
+                draft = (draft_requirements or "").strip()
+                if not draft and not doc:
+                    return {
+                        "version_records_out": records,
+                        "new_version_number": int(current_version_number or 0),
+                        "draft_clear": draft_requirements or "",
+                        "display_reply": "پیش‌نویس خالی است. ابتدا نیازمندی ثبت کنید، سپس «نسخه را قطع کن».",
+                    }
+                new_num = int(current_version_number or 0) + 1
+                record = {
+                    "version": new_num,
+                    "project_title": project_title or "",
+                    "requirements_markdown_fa": doc,
+                    "source_draft_snapshot": draft,
+                }
+                records.append(record)
+                return {
+                    "version_records_out": records,
+                    "new_version_number": new_num,
+                    "draft_clear": "",
+                    "display_reply": (display + "\n\n✅ **نسخه " + str(new_num) + " قطع شد.** پیش‌نویس برای نسخه بعد خالی شد.").strip(),
+                }
+          outputs:
+            version_records_out:
+              type: array[object]
+              children: null
+            new_version_number:
+              type: number
+              children: null
+            draft_clear:
+              type: string
+              children: null
+            display_reply:
+              type: string
+              children: null
+      - id: "1738000013101"
+        type: custom
+        position:
+          x: 2180
+          y: 360
+        width: 244
+        height: 98
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: assigner
+          title: اعمال نسخه
+          desc: ""
+          version: "2"
+          items:
+            - variable_selector:
+                - conversation
+                - version_records
+              input_type: variable
+              operation: over-write
+              value:
+                - "1738000013001"
+                - version_records_out
+            - variable_selector:
+                - conversation
+                - current_version_number
+              input_type: variable
+              operation: over-write
+              value:
+                - "1738000013001"
+                - new_version_number
+            - variable_selector:
+                - conversation
+                - draft_requirements
+              input_type: variable
+              operation: over-write
+              value:
+                - "1738000013001"
+                - draft_clear
+      - id: "1738000015001"
+        type: custom
+        position:
+          x: 2180
+          y: 80
+        width: 244
+        height: 90
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: answer
+          title: پاسخ قوانین
+          desc: ""
+          answer: "{{#1738000011101.display_reply#}}\n\n---\n*قوانین canonical در حافظه گفتگو ذخیره شد.*"
+          variables: []
+      - id: "1738000016001"
+        type: custom
+        position:
+          x: 2180
+          y: 220
+        width: 244
+        height: 90
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: answer
+          title: پاسخ نیاز
+          desc: ""
+          answer: "{{#1738000012101.display_reply#}}"
+          variables: []
+      - id: "1738000017001"
+        type: custom
+        position:
+          x: 2480
+          y: 360
+        width: 244
+        height: 90
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: answer
+          title: پاسخ نسخه
+          desc: ""
+          answer: "{{#1738000013001.display_reply#}}"
+          variables: []
+      - id: "1738000018001"
+        type: custom
+        position:
+          x: 1880
+          y: 500
+        width: 244
+        height: 90
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: answer
+          title: پاسخ HTML
+          desc: ""
+          answer: |
+            ## نمونه HTML (فارسی)
+
+            فایل زیر را کپی کرده و با پسوند `.html` ذخیره کنید، سپس در مرورگر باز کنید.
+
+            ```html
+            {{#1738000009001.text#}}
+            ```
+          variables: []
+      - id: "1738000019001"
+        type: custom
+        position:
+          x: 1880
+          y: 640
+        width: 244
+        height: 90
+        sourcePosition: right
+        targetPosition: left
+        data:
+          type: answer
+          title: پاسخ عمومی
+          desc: ""
+          answer: "{{#1738000010001.text#}}"
+          variables: []
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.6
