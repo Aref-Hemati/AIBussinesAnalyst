@@ -4,8 +4,9 @@
 
 1. Dify Studio → **Create App** → **Import DSL**
 2. Select `business-analyst-fa-chatflow.dify.yml`
-3. After import, open any **LLM** or **Question Classifier** node and confirm model **OpenAI-API-compatible → openai/gpt-4o** (or `moonshotai/kimi-k3` if you prefer)
-4. Publish and chat — no Knowledge Base, plugins, or env vars required
+3. After import, confirm every **LLM** and **Question Classifier** uses **OpenRouter → gpt-5.6-sol-pro** (no “Incompatible” badge). Re-select from the dropdown if needed.
+4. If import shows **DSL version difference**, confirm import — that warning is expected when YAML `version` and server differ slightly.
+5. Publish and chat — no Knowledge Base or env vars required; **OpenRouter** must be configured under Model Provider
 
 Built-in default **org hard rules** apply until you upload your standards file.
 
@@ -61,4 +62,4 @@ flowchart LR
 
 ## Model note
 
-DSL references `langgenius/openai_api_compatible/openai_api_compatible` and `openai/gpt-4o`. If your credential uses another model id, change it once in the classifier and LLM nodes — the graph does not depend on OpenRouter or Knowledge Base.
+DSL references **OpenRouter** `gpt-5.6-sol-pro`. Swap model in all LLM + classifier nodes if you prefer another OpenRouter model (e.g. `gpt-4o`).
