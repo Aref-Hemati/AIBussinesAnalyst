@@ -20,7 +20,7 @@ Do not leave copyrighted PDFs in git. The durable record is our notes + extracte
 | Kind | Path | Notes |
 |------|------|--------|
 | Trail index | [`README.md`](README.md) | Start here |
-| Working title, RQs, related work, method, eval | `00`–`08`, `10`–`12` | |
+| Working title, RQs, related work, method, eval | `00`–`08`, `10`–`13` | `13-METHOD-CRAC.md` is the frozen loop |
 | Papers still needed | [`09-PAPERS-NEEDING-FULL-TEXT.md`](09-PAPERS-NEEDING-FULL-TEXT.md) | Also has ingest rule |
 | Paper notes | [`papers/00-INDEX.md`](papers/00-INDEX.md) | One MD per paper |
 | Raw inbox | [`papers/raw/`](papers/raw/README.md) | Empty except README after processing |

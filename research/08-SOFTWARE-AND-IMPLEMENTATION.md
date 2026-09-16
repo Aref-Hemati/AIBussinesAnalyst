@@ -86,10 +86,11 @@ Package `reqdecide` at the repo root, installed from `src/` via `pyproject.toml`
 |--------|------|
 | [`src/reqdecide/schema.py`](../src/reqdecide/schema.py) | `Decision`, `Requirement`, `Project`, `TurnInput`, `CostModel`. **The M8 gate is a validator**: a `Project` containing a requirement whose `decision_id` is not an ACCEPT decision fails to construct |
 | [`src/reqdecide/uncertainty.py`](../src/reqdecide/uncertainty.py) | K-sample interpretation entropy. Clusters independent readings of an utterance and returns `UncertaintySignal`; high entropy means the statement is ambiguous, low entropy with low confidence means the model lacks knowledge |
+| [`src/reqdecide/policy.py`](../src/reqdecide/policy.py) | Cost-sensitive admit / ask / block. Hard critics first; interpretation entropy spends a question; expected-cost comparison otherwise |
 | [`src/reqdecide/adapters/github_issues.py`](../src/reqdecide/adapters/github_issues.py) | V3 corpus builder: fetch issues, keep feature requests, map maintainer outcomes to decision labels, drop capacity/staleness closures, emit the stratified audit CSV |
-| [`tests/test_core.py`](../tests/test_core.py) | Behaviour that must survive every replay: label/action coherence, orphan-FR rejection, entropy, outcome mapping |
+| [`tests/test_core.py`](../tests/test_core.py) | Behaviour that must survive every replay: label/action coherence, orphan-FR rejection, entropy, outcome mapping, admission policy |
 
-Still to write: `policy.py` (cost-sensitive admission), `critics/`, `eval/`, and the `reqpairs` / `gym` / `industrial` adapters.
+Still to write: `critics/`, `eval/`, and the `reqpairs` / `gym` / `industrial` adapters.
 
 Fetched corpora live under `data/` and are **git-ignored**; rebuild them from the adapters rather than committing issue dumps.
 

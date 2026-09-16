@@ -55,14 +55,15 @@ Academic search terms (not “AI Business Analyst”):
 4. [03-CONTRIBUTIONS.md](03-CONTRIBUTIONS.md) — paper contributions vs engineering contributions
 5. [04-JOURNEY-AND-ACTION-PLAN.md](04-JOURNEY-AND-ACTION-PLAN.md) — phases, checkpoints, what to do next
 6. [05-NOVEL-METHODS.md](05-NOVEL-METHODS.md) — methods to invent / combine / test
-7. [06-EVALUATION-FRAMEWORK.md](06-EVALUATION-FRAMEWORK.md) — metrics, baselines, experiment design
-8. [07-RESULTS-LOG.md](07-RESULTS-LOG.md) — **empty until we run experiments** — numbers, graphs, logs
-9. [08-SOFTWARE-AND-IMPLEMENTATION.md](08-SOFTWARE-AND-IMPLEMENTATION.md) — Dify today, target architecture, GitHub plan
-10. [09-PAPERS-NEEDING-FULL-TEXT.md](09-PAPERS-NEEDING-FULL-TEXT.md) — papers we could not fully read
-11. [10-GLOSSARY.md](10-GLOSSARY.md)
-12. [11-COMPANY-INDUSTRIAL-CONTEXT.md](11-COMPANY-INDUSTRIAL-CONTEXT.md)
-13. [12-PUBLIC-DATASET.md](12-PUBLIC-DATASET.md) — how we compete: gold Decision dialogues, not title keywords
-14. [ARTIFACTS.md](ARTIFACTS.md) — where kept files live; raw inbox is deleted after extract
+7. [13-METHOD-CRAC.md](13-METHOD-CRAC.md) — frozen admission-control formulation the code implements
+8. [06-EVALUATION-FRAMEWORK.md](06-EVALUATION-FRAMEWORK.md) — metrics, baselines, V1–V4 ladder
+9. [07-RESULTS-LOG.md](07-RESULTS-LOG.md) — **empty until we run experiments** — numbers, graphs, logs
+10. [08-SOFTWARE-AND-IMPLEMENTATION.md](08-SOFTWARE-AND-IMPLEMENTATION.md) — Dify today, target architecture, GitHub plan
+11. [09-PAPERS-NEEDING-FULL-TEXT.md](09-PAPERS-NEEDING-FULL-TEXT.md) — papers we could not fully read
+12. [10-GLOSSARY.md](10-GLOSSARY.md)
+13. [11-COMPANY-INDUSTRIAL-CONTEXT.md](11-COMPANY-INDUSTRIAL-CONTEXT.md)
+14. [12-PUBLIC-DATASET.md](12-PUBLIC-DATASET.md) — how we compete: gold Decision dialogues, not title keywords
+15. [ARTIFACTS.md](ARTIFACTS.md) — where kept files live; raw inbox is deleted after extract
 
 Paper-by-paper notes: [papers/00-INDEX.md](papers/00-INDEX.md)
 

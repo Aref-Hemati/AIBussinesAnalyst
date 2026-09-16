@@ -4,6 +4,8 @@ Innovative ≠ ungrounded. Each idea below is **checked against 2025–2026 pape
 
 Last updated: 2026-09-16.
 
+The admission-control formulation that the code implements is frozen in [`13-METHOD-CRAC.md`](13-METHOD-CRAC.md). The numbered methods below remain the ablation menu.
+
 ## Design principle
 
 Combine **three published strengths** that have not been evaluated together as a BA:

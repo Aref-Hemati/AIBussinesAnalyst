@@ -17,13 +17,17 @@ from reqdecide.adapters.github_issues import (
     map_issue,
     stratified_audit_sample,
 )
+from reqdecide.policy import AdmissionProposal, CriticFlags, decide, expected_costs
 from reqdecide.schema import (
     Action,
+    CostModel,
     Decision,
     DecisionLabel,
     Project,
     Requirement,
     SuperClass,
+    TurnInput,
+    UncertaintySignal,
     super_class_of,
 )
 from reqdecide.uncertainty import (
@@ -167,6 +171,20 @@ class TestGithubAdapter:
         assert decision.needs_audit is True
         assert build_corpus([issue]) == []
 
+    def test_policy_wide_feature_freeze_is_out_of_scope(self):
+        issue = IssueRecord(
+            repo="a/b",
+            number=8,
+            title="Add a QUERY method",
+            labels=["Feature Request"],
+            state="closed",
+            state_reason="not_planned",
+            comments=[IssueComment(body="Requests is not accepting feature requests.", author_association="NONE")],
+        )
+        decision = map_issue(issue)
+        assert decision.label is DecisionLabel.OUT_OF_SCOPE
+        assert decision.decision_relevant is True
+
     def test_open_untouched_issue_yields_no_gold_label(self):
         issue = IssueRecord(repo="a/b", number=7, title="Add dark mode", labels=["enhancement"])
         assert map_issue(issue) is None
@@ -184,3 +202,69 @@ class TestGithubAdapter:
         second = stratified_audit_sample(decisions, n=10)
         assert len(first) == 10
         assert [d.number for d in first] == [d.number for d in second]
+
+
+def _turn(text: str, budget: int = 3) -> TurnInput:
+    return TurnInput(utterance=text, question_budget_remaining=budget)
+
+
+def _proposal(p_need: float) -> AdmissionProposal:
+    return AdmissionProposal(p_need=p_need, rationale="model hunch")
+
+
+class TestPolicy:
+    def test_duplicate_blocks_without_asking(self):
+        decision = decide(
+            _turn("Staff must log in with SSO."),
+            _proposal(0.95),
+            flags=CriticFlags(duplicate_of="req-1"),
+        )
+        assert decision.label is DecisionLabel.DUPLICATE
+        assert decision.action is Action.BLOCK
+
+    def test_high_entropy_asks_when_budget_remains(self):
+        uncertainty = UncertaintySignal(
+            n_samples=4,
+            n_clusters=4,
+            cluster_sizes=[1, 1, 1, 1],
+            interpretation_entropy=1.386,
+            normalized_entropy=1.0,
+            interpretations=["A", "B", "C", "D"],
+        )
+        decision = decide(_turn("Make it user-friendly."), _proposal(0.7), uncertainty=uncertainty)
+        assert decision.action is Action.ASK
+        assert decision.label is DecisionLabel.AMBIGUOUS
+        assert decision.questions
+
+    def test_high_entropy_without_budget_refuses_to_admit(self):
+        uncertainty = UncertaintySignal(
+            n_samples=4,
+            n_clusters=4,
+            cluster_sizes=[1, 1, 1, 1],
+            interpretation_entropy=1.386,
+            normalized_entropy=1.0,
+            interpretations=["A", "B", "C", "D"],
+        )
+        decision = decide(
+            _turn("Make it user-friendly.", budget=0),
+            _proposal(0.9),
+            uncertainty=uncertainty,
+        )
+        assert decision.action is Action.BLOCK
+        assert decision.label is DecisionLabel.REJECT
+
+    def test_confident_need_is_admitted(self):
+        decision = decide(_turn("Staff must log in with company SSO.", budget=0), _proposal(0.95))
+        assert decision.label is DecisionLabel.ACCEPT
+        assert decision.action is Action.ADMIT
+
+    def test_confident_non_need_is_blocked(self):
+        decision = decide(_turn("Put the audit trail on a blockchain.", budget=0), _proposal(0.05))
+        assert decision.action is Action.BLOCK
+
+    def test_asking_is_cheaper_than_guessing_when_p_need_is_near_half(self):
+        costs = expected_costs(0.5, CostModel())
+        assert costs["ASK"] < costs["ADMIT"]
+        assert costs["ASK"] < costs["BLOCK"]
+        decision = decide(_turn("Maybe we need a mobile app."), _proposal(0.5))
+        assert decision.action is Action.ASK

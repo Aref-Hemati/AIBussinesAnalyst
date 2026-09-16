@@ -90,8 +90,10 @@ class IssueRecord(BaseModel):
 
     @property
     def closing_text(self) -> str:
-        """Maintainer comments, newest last. Where the rationale usually lives."""
-        return "\n".join(c.body for c in self.comments if c.by_maintainer)
+        """Comments in time order. Bots and templates often carry the real
+        rationale (``not accepting feature requests``), so we do not restrict
+        this to maintainer associations."""
+        return "\n".join(c.body for c in self.comments)
 
 
 # --------------------------------------------------------------------------
@@ -182,7 +184,8 @@ _THEME_PATTERNS: list[tuple[RejectionTheme, re.Pattern[str]]] = [
         RejectionTheme.OUT_OF_SCOPE,
         re.compile(
             r"\b(out of scope|outside (the |our )?scope|not in scope|belongs in|"
-            r"not something (we|this project)|beyond the scope|use a plugin|third[- ]party)\b",
+            r"not something (we|this project)|beyond the scope|use a plugin|third[- ]party|"
+            r"not accepting (new )?(feature requests|enhancements)|feature freeze)\b",
             re.IGNORECASE,
         ),
     ),
@@ -605,17 +608,27 @@ def fetch_repo_issues(
     max_items: int = 500,
     with_comments: bool = True,
     per_page: int = 100,
-    pause: float = 0.2,
+    pause: float = 0.05,
+    labels: str | None = None,
 ) -> list[IssueRecord]:
-    """Pull issues for one repository. Comments cost one request each, so they
-    are fetched only for closed issues, where the rationale lives."""
+    """Pull issues for one repository.
+
+    Comments are one extra request each. They are fetched only for *closed
+    feature requests*, because that is where the rejection rationale lives and
+    bugs would otherwise dominate the quota.
+    """
     issues: list[IssueRecord] = []
     page = 1
 
     while len(issues) < max_items:
-        query = urllib.parse.urlencode(
-            {"state": state, "per_page": min(per_page, max_items - len(issues)), "page": page}
-        )
+        params: dict[str, str | int] = {
+            "state": state,
+            "per_page": min(per_page, max_items - len(issues)),
+            "page": page,
+        }
+        if labels:
+            params["labels"] = labels
+        query = urllib.parse.urlencode(params)
         payload = _request(f"{GITHUB_API}/repos/{repo}/issues?{query}", token)
         if not payload:
             break
@@ -624,7 +637,13 @@ def fetch_repo_issues(
             if "pull_request" in raw:
                 continue
             record = IssueRecord.model_validate(normalize_payload({**raw, "repo": repo}))
-            if with_comments and record.state == "closed" and raw.get("comments"):
+            needs_rationale = (
+                with_comments
+                and record.state == "closed"
+                and bool(raw.get("comments"))
+                and looks_like_feature_request(record)
+            )
+            if needs_rationale:
                 record.comments = fetch_issue_comments(repo, record.number, token)
                 time.sleep(pause)
             issues.append(record)
@@ -649,7 +668,11 @@ def _cmd_fetch(args: argparse.Namespace) -> int:
     for repo in args.repo:
         print(f"fetching {repo} ...", file=sys.stderr)
         issues = fetch_repo_issues(
-            repo, token=token, max_items=args.max_items, with_comments=not args.no_comments
+            repo,
+            token=token,
+            max_items=args.max_items,
+            with_comments=not args.no_comments,
+            labels=args.labels or None,
         )
         print(f"  {len(issues)} issues", file=sys.stderr)
         all_issues.extend(issues)
@@ -694,6 +717,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     fetch.add_argument("--max-items", type=int, default=500)
     fetch.add_argument("--token", default=None)
     fetch.add_argument("--no-comments", action="store_true")
+    fetch.add_argument(
+        "--labels",
+        default="",
+        help="GitHub label filter (e.g. enhancement or 'Feature Request'). Empty = no filter.",
+    )
     fetch.set_defaults(func=_cmd_fetch)
 
     build = sub.add_parser("build", help="map raw issues to gold decisions")

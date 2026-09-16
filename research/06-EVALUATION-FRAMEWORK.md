@@ -104,8 +104,9 @@ Sources: `open-index/open-github-issues` (text, labels, `state_reason`, timeline
 
 **Label noise is the main threat and the mitigation is not optional.** `wontfix` frequently means “no maintainer time,” which is *not* “this should not be a requirement.” Therefore:
 
-1. Filter with the published eight-theme WONTFIX taxonomy; keep only decision-relevant themes (unnecessary, already implemented, out of scope, infeasible, duplicate) and drop capacity//staleness-only themes.
+1. Filter with the published eight-theme WONTFIX taxonomy; keep only decision-relevant themes (unnecessary, already implemented, out of scope, infeasible, duplicate) and drop capacity/staleness-only themes.
 2. Hand-audit a **stratified sample of ~200 issues**, two annotators, and report **Cohen’s κ between the natural label and the human reading**. If κ is weak, V3 becomes a noisy-label study and is reported as such.
+3. Treat **repo-wide policy closures** (e.g. “not accepting feature requests”) as OUT-OF-SCOPE, not as missing rationale. A 2026-09-16 pilot on `psf/requests` + `encode/httpx` (80 labeled feature/enhancement issues) mapped to **42 ACCEPT / 24 OUT-OF-SCOPE / 1 DUPLICATE**. Gold that is 100% ACCEPT is a mapper bug. Open issues stay unlabeled. HOLD is still thin on this sample — pick repos that actually use needs-info.
 
 Since nobody has scored an agent on this task, comparison comes from baselines we run in the same harness — Vanilla, Prompted, and a TF-IDF or BERT classifier — plus the existing automated wontfix-identification work as a reference point. The data is public, so others can beat our number later. That is the point.
 

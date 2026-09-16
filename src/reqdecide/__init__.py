@@ -8,6 +8,7 @@ Method notes live in ``research/05-NOVEL-METHODS.md``; the validation ladder tha
 these modules feed lives in ``research/06-EVALUATION-FRAMEWORK.md``.
 """
 
+from .policy import AdmissionProposal, CriticFlags, decide
 from .schema import (
     Action,
     CostModel,
@@ -27,7 +28,9 @@ __version__ = "0.1.0"
 
 __all__ = [
     "Action",
+    "AdmissionProposal",
     "CostModel",
+    "CriticFlags",
     "Decision",
     "DecisionLabel",
     "Message",
@@ -38,5 +41,6 @@ __all__ = [
     "TurnInput",
     "UncertaintySignal",
     "__version__",
+    "decide",
     "super_class_of",
 ]
