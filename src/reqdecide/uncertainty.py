@@ -15,8 +15,9 @@ import hashlib
 import json
 import math
 import re
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
-from typing import Callable, Iterable, Optional, Protocol, Sequence
+from typing import Protocol
 
 from .schema import UncertaintySignal
 
@@ -42,12 +43,14 @@ _TOKEN_RE = re.compile(r"[a-z0-9]+")
 DEFAULT_JACCARD_THRESHOLD = 0.35
 DEFAULT_EMBED_THRESHOLD = 0.82
 
+# Requirements prose is formulaic: "the system should allow users to ...". Those
+# words are shared by every reading and would make unrelated readings look alike.
 _STOPWORDS = frozenset(
     """
     a an and are as at be by can could for from has have in into is it its may must not of on or
     should shall so that the their them there they this to use used user users want wants was we
     what when where which will with would you your system software application able allow allows
-    """.split()
+    """.split()  # noqa: SIM905 - one word per concept, kept readable over one long list literal
 )
 
 
@@ -64,7 +67,7 @@ class EmbedFn(Protocol):
 @dataclass(frozen=True)
 class Interpretation:
     text: str
-    confidence: Optional[float] = None
+    confidence: float | None = None
 
 
 def prompt_hash(prompt: str = INTERPRETATION_PROMPT) -> str:
@@ -134,7 +137,7 @@ def sample_interpretations(
     return samples
 
 
-def resolve_threshold(threshold: Optional[float], embed: Optional[EmbedFn]) -> float:
+def resolve_threshold(threshold: float | None, embed: EmbedFn | None) -> float:
     if threshold is not None:
         return threshold
     return DEFAULT_EMBED_THRESHOLD if embed is not None else DEFAULT_JACCARD_THRESHOLD
@@ -142,9 +145,9 @@ def resolve_threshold(threshold: Optional[float], embed: Optional[EmbedFn]) -> f
 
 def cluster_texts(
     texts: Sequence[str],
-    threshold: Optional[float] = None,
-    similarity: Optional[Callable[[str, str], float]] = None,
-    embed: Optional[EmbedFn] = None,
+    threshold: float | None = None,
+    similarity: Callable[[str, str], float] | None = None,
+    embed: EmbedFn | None = None,
 ) -> list[list[int]]:
     """Greedy single-link clustering into groups of equivalent readings.
 
@@ -189,9 +192,9 @@ def shannon_entropy(counts: Iterable[int]) -> float:
 
 def estimate_uncertainty(
     interpretations: Sequence[Interpretation],
-    threshold: Optional[float] = None,
-    similarity: Optional[Callable[[str, str], float]] = None,
-    embed: Optional[EmbedFn] = None,
+    threshold: float | None = None,
+    similarity: Callable[[str, str], float] | None = None,
+    embed: EmbedFn | None = None,
 ) -> UncertaintySignal:
     """Turn K readings into the signal the admission rule consumes."""
     if not interpretations:
@@ -228,8 +231,8 @@ def measure(
     generate: GenerateFn,
     k: int = 8,
     context: str = "",
-    threshold: Optional[float] = None,
-    embed: Optional[EmbedFn] = None,
+    threshold: float | None = None,
+    embed: EmbedFn | None = None,
 ) -> UncertaintySignal:
     """Sample and score in one call."""
     samples = sample_interpretations(utterance, generate, k=k, context=context)
@@ -239,17 +242,17 @@ def measure(
 __all__ = [
     "DEFAULT_EMBED_THRESHOLD",
     "DEFAULT_JACCARD_THRESHOLD",
+    "INTERPRETATION_PROMPT",
     "EmbedFn",
     "GenerateFn",
-    "INTERPRETATION_PROMPT",
     "Interpretation",
-    "resolve_threshold",
     "cluster_texts",
     "cosine",
     "estimate_uncertainty",
     "jaccard",
     "measure",
     "prompt_hash",
+    "resolve_threshold",
     "sample_interpretations",
     "shannon_entropy",
 ]

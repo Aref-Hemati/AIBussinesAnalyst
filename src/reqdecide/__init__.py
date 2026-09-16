@@ -37,6 +37,6 @@ __all__ = [
     "SuperClass",
     "TurnInput",
     "UncertaintySignal",
-    "super_class_of",
     "__version__",
+    "super_class_of",
 ]

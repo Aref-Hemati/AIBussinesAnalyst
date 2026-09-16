@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -95,9 +95,9 @@ class SourceSpan(BaseModel):
 
     kind: Literal["message", "file"] = "message"
     ref: str = Field(description="message id, or file name")
-    start: Optional[int] = None
-    end: Optional[int] = None
-    quote: Optional[str] = None
+    start: int | None = None
+    end: int | None = None
+    quote: str | None = None
 
 
 class Message(BaseModel):
@@ -136,8 +136,8 @@ class UncertaintySignal(BaseModel):
     cluster_sizes: list[int] = Field(default_factory=list)
     interpretation_entropy: float = Field(ge=0.0, description="Shannon entropy in nats")
     normalized_entropy: float = Field(ge=0.0, le=1.0)
-    mean_confidence: Optional[float] = Field(default=None, ge=0.0, le=1.0)
-    dominant_interpretation: Optional[str] = None
+    mean_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+    dominant_interpretation: str | None = None
     interpretations: list[str] = Field(default_factory=list)
 
     @property
@@ -173,30 +173,30 @@ class Decision(BaseModel):
     rationale: str
 
     source_spans: list[SourceSpan] = Field(default_factory=list)
-    business_objective_id: Optional[str] = Field(
+    business_objective_id: str | None = Field(
         default=None, description="null on an ACCEPT is what UNJUSTIFIED means"
     )
     questions: list[str] = Field(default_factory=list)
     alternatives: list[str] = Field(default_factory=list)
     org_rule_refs: list[str] = Field(default_factory=list)
     conflicts_with: list[str] = Field(default_factory=list)
-    duplicate_of: Optional[str] = None
+    duplicate_of: str | None = None
     evidence: list[str] = Field(default_factory=list)
 
-    uncertainty: Optional[UncertaintySignal] = None
+    uncertainty: UncertaintySignal | None = None
     expected_costs: dict[str, float] = Field(default_factory=dict)
 
-    model_name: Optional[str] = None
-    prompt_hash: Optional[str] = None
+    model_name: str | None = None
+    prompt_hash: str | None = None
     created_at: datetime = Field(default_factory=_utcnow)
-    turn_index: Optional[int] = None
+    turn_index: int | None = None
 
     @property
     def super_class(self) -> SuperClass:
         return super_class_of(self.label)
 
     @model_validator(mode="after")
-    def _check_label_action_coherence(self) -> "Decision":
+    def _check_label_action_coherence(self) -> Decision:
         expected = {
             SuperClass.ACCEPT: Action.ADMIT,
             SuperClass.HOLD: Action.ASK,
@@ -232,12 +232,12 @@ class Requirement(BaseModel):
     kind: RequirementKind = RequirementKind.FUNCTIONAL
     text: str
     status: RequirementStatus = RequirementStatus.DRAFT
-    priority: Optional[Literal["must", "should", "could", "wont"]] = None
-    user_story: Optional[str] = None
+    priority: Literal["must", "should", "could", "wont"] | None = None
+    user_story: str | None = None
     acceptance_criteria: list[AcceptanceCriterion] = Field(default_factory=list)
     source_spans: list[SourceSpan] = Field(default_factory=list)
     conflicts_with: list[str] = Field(default_factory=list)
-    business_objective_id: Optional[str] = None
+    business_objective_id: str | None = None
 
 
 class OpenQuestion(BaseModel):
@@ -247,7 +247,7 @@ class OpenQuestion(BaseModel):
     decision_id: str
     text: str
     answered: bool = False
-    answer: Optional[str] = None
+    answer: str | None = None
 
 
 class VersionRecord(BaseModel):
@@ -257,11 +257,11 @@ class VersionRecord(BaseModel):
 
     number: int = Field(ge=1)
     created_at: datetime = Field(default_factory=_utcnow)
-    confirmed_by: Optional[str] = None
+    confirmed_by: str | None = None
     requirement_ids: list[str] = Field(default_factory=list)
     added: list[str] = Field(default_factory=list)
     removed: list[str] = Field(default_factory=list)
-    note: Optional[str] = None
+    note: str | None = None
 
 
 class TurnInput(BaseModel):
@@ -274,7 +274,7 @@ class TurnInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     utterance: str
-    project_id: Optional[str] = None
+    project_id: str | None = None
     turn_index: int = Field(default=0, ge=0)
     history: list[Message] = Field(default_factory=list)
     org_rules: list[OrgRule] = Field(default_factory=list)
@@ -297,7 +297,7 @@ class Project(BaseModel):
     id: str = Field(default_factory=lambda: _new_id("prj"))
     title: str
     language: str = "en"
-    org_rule_set_id: Optional[str] = None
+    org_rule_set_id: str | None = None
 
     messages: list[Message] = Field(default_factory=list)
     decisions: list[Decision] = Field(default_factory=list)
@@ -305,7 +305,7 @@ class Project(BaseModel):
     open_questions: list[OpenQuestion] = Field(default_factory=list)
     versions: list[VersionRecord] = Field(default_factory=list)
 
-    def decision_by_id(self, decision_id: str) -> Optional[Decision]:
+    def decision_by_id(self, decision_id: str) -> Decision | None:
         return next((d for d in self.decisions if d.id == decision_id), None)
 
     def orphan_requirements(self) -> list[Requirement]:
@@ -326,7 +326,7 @@ class Project(BaseModel):
         return counts
 
     @model_validator(mode="after")
-    def _no_orphan_requirements(self) -> "Project":
+    def _no_orphan_requirements(self) -> Project:
         orphans = self.orphan_requirements()
         if orphans:
             ids = ", ".join(r.id for r in orphans)
@@ -337,8 +337,9 @@ class Project(BaseModel):
 
 
 __all__ = [
-    "Action",
+    "SUPER_CLASS_OF",
     "AcceptanceCriterion",
+    "Action",
     "CostModel",
     "Decision",
     "DecisionLabel",
@@ -355,5 +356,4 @@ __all__ = [
     "UncertaintySignal",
     "VersionRecord",
     "super_class_of",
-    "SUPER_CLASS_OF",
 ]

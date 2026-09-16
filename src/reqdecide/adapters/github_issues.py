@@ -32,10 +32,11 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from collections.abc import Iterable, Iterator, Sequence
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Iterable, Iterator, Optional, Sequence
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -53,10 +54,10 @@ USER_AGENT = "reqdecide-v3-corpus-builder"
 class IssueComment(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
-    author: Optional[str] = None
+    author: str | None = None
     body: str = ""
-    author_association: Optional[str] = None
-    created_at: Optional[datetime] = None
+    author_association: str | None = None
+    created_at: datetime | None = None
 
     @property
     def by_maintainer(self) -> bool:
@@ -74,11 +75,11 @@ class IssueRecord(BaseModel):
     title: str = ""
     body: str = ""
     state: str = "open"
-    state_reason: Optional[str] = None
+    state_reason: str | None = None
     labels: list[str] = Field(default_factory=list)
-    created_at: Optional[datetime] = None
-    closed_at: Optional[datetime] = None
-    html_url: Optional[str] = None
+    created_at: datetime | None = None
+    closed_at: datetime | None = None
+    html_url: str | None = None
     comments: list[IssueComment] = Field(default_factory=list)
     is_pull_request: bool = False
     linked_merged_pr: bool = False
@@ -168,13 +169,13 @@ DECISION_RELEVANT_THEMES = frozenset(
 _THEME_PATTERNS: list[tuple[RejectionTheme, re.Pattern[str]]] = [
     (
         RejectionTheme.DUPLICATE,
-        re.compile(r"\b(duplicate of|dupe of|already (tracked|reported|filed)|see #\d+)\b", re.I),
+        re.compile(r"\b(duplicate of|dupe of|already (tracked|reported|filed)|see #\d+)\b", re.IGNORECASE),
     ),
     (
         RejectionTheme.ALREADY_IMPLEMENTED,
         re.compile(
             r"\b(already (supported|implemented|possible|exists)|this (already )?works|you can already)\b",
-            re.I,
+            re.IGNORECASE,
         ),
     ),
     (
@@ -182,7 +183,7 @@ _THEME_PATTERNS: list[tuple[RejectionTheme, re.Pattern[str]]] = [
         re.compile(
             r"\b(out of scope|outside (the |our )?scope|not in scope|belongs in|"
             r"not something (we|this project)|beyond the scope|use a plugin|third[- ]party)\b",
-            re.I,
+            re.IGNORECASE,
         ),
     ),
     (
@@ -190,19 +191,19 @@ _THEME_PATTERNS: list[tuple[RejectionTheme, re.Pattern[str]]] = [
         re.compile(
             r"\b(not (technically )?possible|infeasible|cannot be (done|implemented)|"
             r"upstream limitation|breaking change we (can|will) not)\b",
-            re.I,
+            re.IGNORECASE,
         ),
     ),
     (
         RejectionTheme.WORKS_AS_INTENDED,
-        re.compile(r"\b(works as (intended|designed|expected)|by design|intended behaviou?r|not a bug)\b", re.I),
+        re.compile(r"\b(works as (intended|designed|expected)|by design|intended behaviou?r|not a bug)\b", re.IGNORECASE),
     ),
     (
         RejectionTheme.UNNECESSARY,
         re.compile(
             r"\b(don'?t think (this|it) is needed|not (worth|needed|necessary)|"
             r"no (real )?use case|too niche|adds (too much )?complexity|maintenance burden)\b",
-            re.I,
+            re.IGNORECASE,
         ),
     ),
     (
@@ -210,7 +211,7 @@ _THEME_PATTERNS: list[tuple[RejectionTheme, re.Pattern[str]]] = [
         re.compile(
             r"\b(your (setup|environment|configuration)|user error|please ask on|support question|"
             r"not a (bug|problem) (in|with) )\b",
-            re.I,
+            re.IGNORECASE,
         ),
     ),
     (
@@ -219,17 +220,17 @@ _THEME_PATTERNS: list[tuple[RejectionTheme, re.Pattern[str]]] = [
             r"\b(no (one|body) (is )?(working|available)|lack of (time|resources|maintainers)|"
             r"we do not have (the )?(time|bandwidth|resources)|unmaintained|looking for (a )?maintainer|"
             r"pull requests? welcome|patches welcome|help wanted)\b",
-            re.I,
+            re.IGNORECASE,
         ),
     ),
     (
         RejectionTheme.STALE_OR_NO_RESPONSE,
-        re.compile(r"\b(stale|inactivity|no (response|activity|reply)|closing due to|automatically closed)\b", re.I),
+        re.compile(r"\b(stale|inactivity|no (response|activity|reply)|closing due to|automatically closed)\b", re.IGNORECASE),
     ),
 ]
 
 
-def classify_rejection_theme(text: str) -> tuple[RejectionTheme, Optional[str]]:
+def classify_rejection_theme(text: str) -> tuple[RejectionTheme, str | None]:
     """Return the theme and the phrase that triggered it, for the human audit."""
     for theme, pattern in _THEME_PATTERNS:
         match = pattern.search(text or "")
@@ -265,7 +266,7 @@ class NaturalDecision(BaseModel):
 
     repo: str
     number: int
-    html_url: Optional[str] = None
+    html_url: str | None = None
     title: str
     body: str
     label: DecisionLabel
@@ -273,11 +274,11 @@ class NaturalDecision(BaseModel):
     theme: RejectionTheme = RejectionTheme.UNKNOWN
     decision_relevant: bool = True
     mapping_rule: str
-    mapping_evidence: Optional[str] = None
+    mapping_evidence: str | None = None
     labels: list[str] = Field(default_factory=list)
     state: str
-    state_reason: Optional[str] = None
-    closed_at: Optional[datetime] = None
+    state_reason: str | None = None
+    closed_at: datetime | None = None
     needs_audit: bool = False
 
     @property
@@ -285,7 +286,7 @@ class NaturalDecision(BaseModel):
         return f"{self.title}\n\n{self.body}".strip()
 
 
-def map_issue(issue: IssueRecord) -> Optional[NaturalDecision]:
+def map_issue(issue: IssueRecord) -> NaturalDecision | None:
     """Map one issue to a gold decision, or None when the outcome is unreadable.
 
     Precedence matters: an issue closed as a duplicate is a DUPLICATE even
@@ -299,7 +300,7 @@ def map_issue(issue: IssueRecord) -> Optional[NaturalDecision]:
         rule: str,
         *,
         theme: RejectionTheme = RejectionTheme.UNKNOWN,
-        evidence: Optional[str] = None,
+        evidence: str | None = None,
         relevant: bool = True,
         needs_audit: bool = False,
     ) -> NaturalDecision:
@@ -559,7 +560,7 @@ def read_issue_jsonl(paths: Sequence[Path]) -> Iterator[IssueRecord]:
 # --------------------------------------------------------------------------
 
 
-def _request(url: str, token: Optional[str]) -> Any:
+def _request(url: str, token: str | None) -> Any:
     headers = {
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
@@ -582,7 +583,7 @@ def _request(url: str, token: Optional[str]) -> Any:
         raise
 
 
-def fetch_issue_comments(repo: str, number: int, token: Optional[str] = None) -> list[IssueComment]:
+def fetch_issue_comments(repo: str, number: int, token: str | None = None) -> list[IssueComment]:
     payload = _request(f"{GITHUB_API}/repos/{repo}/issues/{number}/comments?per_page=100", token)
     return [
         IssueComment.model_validate(
@@ -599,7 +600,7 @@ def fetch_issue_comments(repo: str, number: int, token: Optional[str] = None) ->
 
 def fetch_repo_issues(
     repo: str,
-    token: Optional[str] = None,
+    token: str | None = None,
     state: str = "all",
     max_items: int = 500,
     with_comments: bool = True,
@@ -683,7 +684,7 @@ def _cmd_build(args: argparse.Namespace) -> int:
     return 0
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
+def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Build the V3 natural-decision corpus from GitHub issues.")
     sub = parser.add_subparsers(dest="command", required=True)
 
