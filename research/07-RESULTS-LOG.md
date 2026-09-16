@@ -39,6 +39,26 @@ Copied here so graphs have a comparison band. Sources in [`papers/`](papers/00-I
 
 ## Our experiments
 
+### v3-corpus-feasibility
+
+Status: **completed 2026-09-16 — corpus construction only, not agent evaluation**
+Code: `src/reqdecide/adapters/github_issues.py`
+Raw/output location: local git-ignored `data/v3/`
+
+| Stage | Count |
+|-------|-------|
+| Selected repositories | 3 (`microsoft/vscode`, `microsoft/TypeScript`, `encode/httpx`) |
+| Raw rows fetched | 240 |
+| Unique issues after overlap removal | 213 |
+| Decision-relevant gold records | 129 |
+| ACCEPT | 85 |
+| HOLD (CLARIFY) | 33 |
+| BLOCK | 11 (8 DUPLICATE, 3 OUT-OF-SCOPE) |
+
+Outcome: all three headline classes are populated. A 60-record stratified audit
+sheet was generated locally; the journal protocol still requires two annotators
+and a final sample near 200 before treating natural labels as validated gold.
+
 ### exp-unjustified-10
 
 Status: **not run**  

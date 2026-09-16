@@ -106,7 +106,9 @@ Sources: `open-index/open-github-issues` (text, labels, `state_reason`, timeline
 
 1. Filter with the published eight-theme WONTFIX taxonomy; keep only decision-relevant themes (unnecessary, already implemented, out of scope, infeasible, duplicate) and drop capacity/staleness-only themes.
 2. Hand-audit a **stratified sample of ~200 issues**, two annotators, and report **Cohen’s κ between the natural label and the human reading**. If κ is weak, V3 becomes a noisy-label study and is reported as such.
-3. Treat **repo-wide policy closures** (e.g. “not accepting feature requests”) as OUT-OF-SCOPE, not as missing rationale. A 2026-09-16 pilot on `psf/requests` + `encode/httpx` (80 labeled feature/enhancement issues) mapped to **42 ACCEPT / 24 OUT-OF-SCOPE / 1 DUPLICATE**. Gold that is 100% ACCEPT is a mapper bug. Open issues stay unlabeled. HOLD is still thin on this sample — pick repos that actually use needs-info.
+3. Treat **repo-wide policy closures** (e.g. “not accepting feature requests”) as OUT-OF-SCOPE, not as missing rationale. Gold that is 100% ACCEPT is a mapper bug; open issues stay unlabeled.
+
+**V3 feasibility pilot (2026-09-16):** 213 unique public issues from `microsoft/vscode`, `microsoft/TypeScript`, and `encode/httpx` produced 129 decision-relevant records after outcome mapping and deduplication: **85 ACCEPT / 33 HOLD / 11 BLOCK**. Fine labels: 85 ACCEPT, 33 CLARIFY, 8 DUPLICATE, 3 OUT-OF-SCOPE. All three headline classes are populated, so V3 can proceed to the two-annotator audit. This is a **corpus-construction result**, not agent performance.
 
 Since nobody has scored an agent on this task, comparison comes from baselines we run in the same harness — Vanilla, Prompted, and a TF-IDF or BERT classifier — plus the existing automated wontfix-identification work as a reference point. The data is public, so others can beat our number later. That is the point.
 

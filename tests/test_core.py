@@ -15,6 +15,7 @@ from reqdecide.adapters.github_issues import (
     classify_rejection_theme,
     looks_like_feature_request,
     map_issue,
+    normalize_payload,
     stratified_audit_sample,
 )
 from reqdecide.policy import AdmissionProposal, CriticFlags, decide, expected_costs
@@ -135,6 +136,7 @@ class TestGithubAdapter:
     def test_feature_intent_is_read_from_label_or_title(self):
         assert looks_like_feature_request(IssueRecord(repo="a/b", number=2, title="Dark mode", labels=["enhancement"]))
         assert looks_like_feature_request(IssueRecord(repo="a/b", number=3, title="Please add dark mode"))
+        assert looks_like_feature_request(IssueRecord(repo="a/b", number=4, title="Dark mode", labels=["Suggestion"]))
 
     def test_themes_come_with_the_phrase_that_triggered_them(self):
         theme, evidence = classify_rejection_theme("This is out of scope for the core library.")
@@ -188,6 +190,35 @@ class TestGithubAdapter:
     def test_open_untouched_issue_yields_no_gold_label(self):
         issue = IssueRecord(repo="a/b", number=7, title="Add dark mode", labels=["enhancement"])
         assert map_issue(issue) is None
+
+    def test_repo_specific_info_needed_aliases_map_to_hold(self):
+        for label in ("need-info", "info-needed", "Needs More Info"):
+            issue = IssueRecord(
+                repo="a/b",
+                number=9,
+                title="Add dark mode",
+                labels=["enhancement", label],
+            )
+            decision = map_issue(issue)
+            assert decision.label is DecisionLabel.CLARIFY
+            assert decision.super_class is SuperClass.HOLD
+
+    def test_overlapping_fetches_are_deduplicated(self):
+        issue = IssueRecord(
+            repo="a/b",
+            number=10,
+            title="Add dark mode",
+            labels=["enhancement"],
+            state="closed",
+            state_reason="completed",
+        )
+        assert len(build_corpus([issue, issue])) == 1
+
+    def test_github_null_body_is_normalized(self):
+        payload = normalize_payload(
+            {"repo": "a/b", "number": 11, "title": "Feature", "body": None}
+        )
+        assert IssueRecord.model_validate(payload).body == ""
 
     def test_audit_sample_is_deterministic_and_bounded(self):
         issues = [

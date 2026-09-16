@@ -111,6 +111,7 @@ FEATURE_LABELS = {
     "new feature",
     "proposal",
     "rfc",
+    "suggestion",
 }
 
 BUG_LABELS = {"bug", "type: bug", "type:bug", "kind/bug", "defect", "regression", "crash"}
@@ -249,6 +250,8 @@ def classify_rejection_theme(text: str) -> tuple[RejectionTheme, str | None]:
 _DUPLICATE_LABELS = {"duplicate", "dupe", "status: duplicate", "resolution: duplicate"}
 _WONTFIX_LABELS = {"wontfix", "won't fix", "wont-fix", "status: wontfix", "resolution: wontfix", "declined"}
 _NEEDS_INFO_LABELS = {
+    "need-info",
+    "info-needed",
     "needs more info",
     "needs-info",
     "needs info",
@@ -387,7 +390,12 @@ def build_corpus(
 ) -> list[NaturalDecision]:
     """Apply the filter chain that the paper must describe in one paragraph."""
     out: list[NaturalDecision] = []
+    seen: set[tuple[str, int]] = set()
     for issue in issues:
+        key = (issue.repo.lower(), issue.number)
+        if key in seen:
+            continue
+        seen.add(key)
         if issue.is_pull_request:
             continue
         if feature_requests_only and not looks_like_feature_request(issue):
@@ -510,6 +518,8 @@ def write_jsonl(items: Iterable[BaseModel], path: Path) -> int:
 def normalize_payload(payload: dict[str, Any]) -> dict[str, Any]:
     """Accept both the REST shape and the flattened dataset shape."""
     data = dict(payload)
+    data["title"] = data.get("title") or ""
+    data["body"] = data.get("body") or ""
 
     labels = data.get("labels")
     if isinstance(labels, str):
