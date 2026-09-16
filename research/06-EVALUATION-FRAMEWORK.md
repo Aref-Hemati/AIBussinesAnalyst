@@ -49,6 +49,76 @@ Permission + anonymization required ([11-COMPANY-INDUSTRIAL-CONTEXT.md](11-COMPA
 
 Reuse QUS criteria from TSE 2026 on generated stories (optional second study).
 
+## External validation ladder (V1–V4)
+
+Added 2026-09-16. This is the answer to the first objection a reviewer will raise: *“you invented the taxonomy, wrote the dialogues, labeled them, and your agent won.”* Three of the four tiers use data we did not create, and two allow direct comparison with published numbers.
+
+| Tier | Data | Who else has numbers | Comparison type |
+|------|------|----------------------|-----------------|
+| **V1** | Conflict / duplicate pairs (WorldVista, UAV, PURE→THEMAS+Mashbot, OPENCOSS), DAMIR-PURE ambiguity | SR-BERT transfer learning, PassionNet, S3CDA (Malik et al. compilation) | **Direct**, same fixed public splits |
+| **V2** | ReqElicitGym / ReqElicitBench — 101 scenarios, oracle user, judge | ReqElicitGym empirical study; OntoAgent | **Direct**, same environment and metrics |
+| **V3** | GitHub feature requests with maintainer outcomes | Nobody, for this task | **We set the first public baseline** |
+| **V4** | 8–12 anonymized industrial cases (D3) | Nobody | Human agreement only |
+
+### V1 — Zero-shot generalist vs supervised specialist
+
+Run the conflict, duplicate, and ambiguity critics in **pairwise mode** on the public splits and report next to the published macro-F1 / conflict-F1.
+
+State the framing explicitly in the paper, because it is the honest one:
+
+> Prior results come from models **trained on the task**. CRAC is a **general zero-shot decision policy** with no task-specific training. The claim is comparable component skill without supervision, not a new state of the art.
+
+Threats to write in the same paragraph:
+
+- Several conflicts are **synthetic**, crafted by Malik et al. along INCOSE guidelines, not naturally occurring.
+- Class imbalance is extreme (conflict:neutral up to **1:367** on OPENCOSS), so macro-F1 and conflict-F1 both go in the table; accuracy does not.
+- Pairwise mode is a **different input form** from live dialogue. It validates the critic, not the loop.
+
+### V2 — Standardized protocol head-to-head
+
+Both artifacts are available: the gym at [`jdm4pku/ReqElicitBench`](https://github.com/jdm4pku/ReqElicitBench), and OntoAgent’s replication package at `anonymous.4open.science/r/TypoAgent-RE2026`.
+
+**Document the variance, do not cherry-pick it.** Published IRE numbers on the same gym disagree by a wide margin:
+
+| Source | Reported IRE | Setting |
+|--------|--------------|---------|
+| ReqElicitGym empirical study | **0.32** (best of 7 LLMs) | Plain LLM interviewers, Non-CoT / CoT |
+| OntoAgent | **0.69** (+33% over baselines), TKQR 0.59 | Ontology-guided agent |
+
+Protocol rule for our table: fix one model, one temperature, one turn cap, and **re-run at least one published baseline ourselves** in that protocol. Report our controlled baseline beside both literature reference points. A single number lifted out of either paper is not a comparison.
+
+Extension we release: **ReqElicitGym-Adv**, the same scenarios with an oracle user that also voices unjustified, out-of-scope, and unevidenced demands from a generator **frozen before** CRAC is run on it. Coverage-maximizing agents should degrade there; CRAC should not.
+
+### V3 — First public baseline on natural maintainer decisions
+
+Maintainer outcomes are decisions made by humans with real stakes, recorded before we existed.
+
+| Observed outcome | Our label | Super-class |
+|------------------|-----------|-------------|
+| Implemented / merged / `state:accepted` | ACCEPT | ACCEPT |
+| Closed `not_planned`, `wontfix` | REJECT / OUT-OF-SCOPE | BLOCK |
+| Duplicate label or closing comment pointing at an existing issue | DUPLICATE | BLOCK |
+| `needs-info`, awaiting-response, closed stale for silence | CLARIFY | HOLD |
+
+Sources: `open-index/open-github-issues` (text, labels, `state_reason`, timelines), the WONTFIX figshare dataset (3,132 popular repos), GitReq for requirement-quality labels.
+
+**Label noise is the main threat and the mitigation is not optional.** `wontfix` frequently means “no maintainer time,” which is *not* “this should not be a requirement.” Therefore:
+
+1. Filter with the published eight-theme WONTFIX taxonomy; keep only decision-relevant themes (unnecessary, already implemented, out of scope, infeasible, duplicate) and drop capacity//staleness-only themes.
+2. Hand-audit a **stratified sample of ~200 issues**, two annotators, and report **Cohen’s κ between the natural label and the human reading**. If κ is weak, V3 becomes a noisy-label study and is reported as such.
+
+Since nobody has scored an agent on this task, comparison comes from baselines we run in the same harness — Vanilla, Prompted, and a TF-IDF or BERT classifier — plus the existing automated wontfix-identification work as a reference point. The data is public, so others can beat our number later. That is the point.
+
+### V4 — Industrial ecological validity
+
+No external leaderboard. Agreement statistics only:
+
+- **Cohen’s κ** for two raters (AI vs BA, or BA vs BA).
+- **Fleiss’ κ** when three or more BAs label the same cases.
+- Report κ per super-class (ACCEPT / HOLD / BLOCK) as the headline and the nine-way confusion matrix as error analysis. Nine-way F1 with n=8–12 is not defensible.
+
+This tier buys what Zadenoori shows is missing (elicitation field studies = 1), not leaderboard position.
+
 ## Metrics
 
 ### Core (must appear in the paper)
@@ -69,7 +139,7 @@ Reuse QUS criteria from TSE 2026 on generated stories (optional second study).
 
 | Metric | Published number to beat / compare | Notes |
 |--------|-------------------------------------|-------|
-| IRE | OntoAgent **0.69**; mistake-guided **0.52**; LLMREI-short **0.39** | Implicit coverage |
+| IRE | OntoAgent **0.69**; mistake-guided **0.52**; LLMREI-short **0.39**; gym’s own best plain LLM **0.32** | Implicit coverage. Sources disagree — see V2 protocol rule |
 | TKQR | OntoAgent **0.59**; LLMREI-short **0.49** | Efficiency of questions |
 | P / R / F1 of extracted reqs | Yin **80.4 / 79.7 / 0.89** | Different task (batch multi-source) — **do not claim beat** without same data |
 | Redundancy reduction | Yin **17.3–18%** | Report analogously: % duplicate proposals suppressed |
