@@ -1,6 +1,10 @@
 # Paper notes — index
 
-Detailed notes live in this folder. Synthesis lives in [`../02-RELATED-WORKS.md`](../02-RELATED-WORKS.md).
+Detailed notes live in this folder. Synthesis lives in [`../02-RELATED-WORKS.md`](../02-RELATED-WORKS.md). Locations of figures: [`../ARTIFACTS.md`](../ARTIFACTS.md).
+
+**Raw dumps:** put files in [`raw/`](raw/README.md). After a note exists, **delete the dump**.
+
+Each note should contain: problem, method, results (tables/numbers), limitations, numbers to beat / leftover gap, extracted figures.
 
 **Reading order (recommended):** surveys first, then closest systems, then evaluation papers.
 

@@ -1,14 +1,25 @@
 # Papers we could not fully read
 
-Please paste **full text** (or a PDF drop into `research/papers/raw/`) for these. Until then, our notes are abstract-level and must not be over-cited as if we read the methods.
+Please paste **full text** or drop a file into `research/papers/raw/` and tell me. Until then, notes stay abstract-level and must not be over-cited as if we read the methods.
 
 Last updated: 2026-09-16.
 
+## Ingest rule (raw → notes → delete)
+
+When a file appears in `research/papers/raw/`:
+
+1. Read it fully (PDF, HTML+`_files/`, or TXT).
+2. Write/update `research/papers/<id>-*.md` with problem, method, results, limitations, numbers to beat, and how we differ.
+3. Copy important figures to `research/figures/baselines/` and register them in [`ARTIFACTS.md`](ARTIFACTS.md).
+4. Refresh this list, `02-RELATED-WORKS.md`, and `logs/reading-log.md`.
+5. **Delete the raw dump** (including HTML sidecar folders). Raw is an inbox, not an archive.
+
+Do not ask the user to keep the original in `raw/` after extraction.
+
 ## How to give me a paper
 
-1. Paste the PDF text in chat, or
-2. Put a `.pdf` / `.txt` under `research/papers/raw/` and tell me the filename
-3. I will write/update `research/papers/<id>-*.md` and refresh related work + numbers-to-beat
+1. Paste text in chat, **or**
+2. Put a `.pdf` / `.html` / `.txt` under `research/papers/raw/` and name it in chat.
 
 I will also extract **result tables and important figures** when images are available.
 
@@ -53,7 +64,7 @@ I will also extract **result tables and important figures** when images are avai
 
 ## Accessible and already summarized (do not re-send unless camera-ready differs)
 
-- Zadenoori et al. LLM4RE SLR — arXiv:2509.11446
+- Zadenoori et al. LLM4RE SLR — notes in `papers/01` (raw HTML **deleted** after extract, 2026-09-16)
 - Cheng et al. GenAI RE SLR — arXiv:2409.06741 / SPE 70029
 - Hemmat et al. Frontiers 2025 — open
 - Yin et al. LLM+Agent 2026 — Sage/IOS page retrieved
@@ -65,4 +76,4 @@ I will also extract **result tables and important figures** when images are avai
 
 ## Figures we already keep
 
-See [`figures/README.md`](figures/README.md). If you send PDFs, I will add result graphs under `figures/baselines/`.
+See [`figures/README.md`](figures/README.md) and [`ARTIFACTS.md`](ARTIFACTS.md).

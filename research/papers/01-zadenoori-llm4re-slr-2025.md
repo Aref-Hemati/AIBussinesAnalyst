@@ -2,8 +2,9 @@
 
 - **Cite:** M. A. Zadenoori, J. Dąbrowski, W. Alhoshan, L. Zhao, A. Ferrari. *Large Language Models (LLMs) for Requirements Engineering (RE): A Systematic Literature Review*. arXiv:2509.11446, 2025.
 - **URL:** https://arxiv.org/abs/2509.11446
+- **Local copy:** raw HTML **deleted after extract** (2026-09-16). Kept figures: `../figures/baselines/zadenoori-*`
 - **Venue:** preprint (authors note it is preliminary; no full cross-check yet)
-- **Read:** 2026-09-16 from arXiv HTML
+- **Read:** 2026-09-16 from arXiv HTML; **re-read local HTML + result figures** the same day
 - **Our use:** opening related-work evidence that elicitation/validation dominate, industry and interactive prompting do not
 
 ## Problem
@@ -39,11 +40,22 @@ RQs: demographics; RE usage (task/phase/artifacts); prompt engineering; resource
 | Field studies | **7%** |
 | Proposed integrated tools | 21 tools (minority of papers) |
 
-Shift vs NLP4RE: from defect detection/classification → cognitively heavy elicitation & validation.
+Search funnel (Fig. 2): Scopus 244 → title/abstract 136 → inclusion 62; venue search +12 → **74**.
 
-Input artifacts still dominated by SRS (38%), but issues/feedback (12%) and legal (9%) growing.
+**Exact task/phase counts (Tables 5–6):** elicitation **15 studies, 20%**; validation **15, 20%**; elicitation *phase* and V&V *phase* **16 each, 22%**. NLP4RE had analysis 42.7% and V&V only 4% — the lifecycle has flipped toward the human-heavy ends.
 
-Output diversity includes interview scripts/questionnaires (5%) — adjacent to our question policy.
+Input: SRS **28 / 38%**. Output includes interview scripts/questionnaires (**5%**) — adjacent to our question policy.
+
+### Result figures we kept (from the HTML)
+
+| File | What it shows | Use |
+|------|---------------|-----|
+| `../figures/baselines/zadenoori-fig-eval-methods.png` | Task × eval method bubbles | **Elicitation field studies = 1**; validation field studies = 1. Lab owns elicitation (11) and validation (12). |
+| `../figures/baselines/zadenoori-fig-io-artefacts.png` | Input × output artefacts | Interview scripts almost empty (1). SRS→analysis reports is the dense cell. |
+| `../figures/baselines/zadenoori-fig1-scheme.svg` | Conceptual data-extraction scheme | Optional related-work figure |
+| `../figures/baselines/zadenoori-fig2-search.svg` | Search/filter pipeline | Methods appendix |
+
+**This is stronger than “7% field studies.”** Among 74 papers, **live elicitation in the field is essentially one study.** That is the sentence for our industrial-evaluation claim.
 
 ## Limitations they admit
 

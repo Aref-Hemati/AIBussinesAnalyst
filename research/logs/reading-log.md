@@ -4,6 +4,7 @@
 |------|----------------|---------|
 | 2026-09-16 | User research dump (AI BA idea, gap, architecture sketches) | Captured in `00`–`05` and `notes/source-notes-original-idea.md` |
 | 2026-09-16 | Zadenoori arXiv:2509.11446 | Full notes `papers/01` |
+| 2026-09-16 | **Local HTML** of Zadenoori SLR in `papers/raw/` | Confirmed numbers; kept eval-method + I/O bubble charts; elicitation **field n=1**; **raw dump deleted** after extract |
 | 2026-09-16 | Cheng SPE/arXiv GenAI-RE SLR | `papers/02` |
 | 2026-09-16 | MDPI SMS elicitation | Abstract only `papers/03` |
 | 2026-09-16 | Hemmat Frontiers 2025 | `papers/04` |

@@ -156,5 +156,6 @@ Order of writing (do not start with Implementation):
 | 2026-09-16 | Freeze title: original + “with Interactive Critique” | Keep field-study signal; add novelty word; reject stuffed all-in-one and “Challenging the Stakeholder” as header |
 | 2026-09-16 | Public decision-labeled dataset is a first-class competitive artifact, not a leftover | Other papers win on gyms/US corpora; industrial n will be small |
 | 2026-09-16 | On “please commit”, agent chooses split and messages | Keep the trail in git without blocking on commit-message drafting |
+| 2026-09-16 | Raw papers: extract notes + figures, then **delete** the dump | Avoid git-bloating copyrighted PDFs; `ARTIFACTS.md` holds locations |
 
 Add rows as we go. Do not delete rows — strike-through superseded decisions.

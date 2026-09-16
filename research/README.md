@@ -35,6 +35,10 @@ Rejected alternatives stay in [00-VISION-AND-GOALS.md](00-VISION-AND-GOALS.md).
 
 When the user says **commit**, do it without waiting for a message. Split and describe by the agent’s judgment (why, not a file dump). One or more commits is fine. Never push unless asked. Never commit `.env` or credentials.
 
+## Raw paper inbox
+
+If the user puts a file in [`papers/raw/`](papers/raw/README.md): extract a full paper note, copy needed figures, **then delete the dump**. Locations: [`ARTIFACTS.md`](ARTIFACTS.md).
+
 Academic search terms (not “AI Business Analyst”):
 
 - LLM-based Requirements Engineering (LLM4RE)
@@ -58,6 +62,7 @@ Academic search terms (not “AI Business Analyst”):
 11. [10-GLOSSARY.md](10-GLOSSARY.md)
 12. [11-COMPANY-INDUSTRIAL-CONTEXT.md](11-COMPANY-INDUSTRIAL-CONTEXT.md)
 13. [12-PUBLIC-DATASET.md](12-PUBLIC-DATASET.md) — how we compete: gold Decision dialogues, not title keywords
+14. [ARTIFACTS.md](ARTIFACTS.md) — where kept files live; raw inbox is deleted after extract
 
 Paper-by-paper notes: [papers/00-INDEX.md](papers/00-INDEX.md)
 
@@ -88,7 +93,7 @@ Evidence:
 
 - Automated elicitation SMS (2026): ~**51%** structure identified requirements, **23%** consolidate, **8%** engineer stakeholder validation.
 - Cheng et al. SPE (2026, 238 papers): analysis 30%, elicitation 22.1%, specification 22.1%, validation 19%, **management 6.8%**; **only 1.3%** reach production; **90.3%** early-stage.
-- Zadenoori et al. arXiv (2025, 74 LLM4RE studies): elicitation & validation dominate; **75% lab experiments**, **7% field studies**; interactive prompting **5%**, RAG **6%**.
+- Zadenoori et al. arXiv (2025, 74 LLM4RE studies): elicitation & validation dominate; **75% lab experiments**, **7% field studies**; **elicitation field studies = 1** (their eval-method bubble chart); interactive prompting **5%**, RAG **6%**.
 
 Our distinctive loop:
 

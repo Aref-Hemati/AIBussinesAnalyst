@@ -18,14 +18,15 @@ Extraction ──► Generation ──► Quality check ──► Interview ─�
 
 ### Zadenoori et al., 2025 — LLM4RE SLR (74 studies, 2023–2024)
 
-- [arXiv:2509.11446](https://arxiv.org/abs/2509.11446)
-- LLM4RE shifted from NLP4RE’s defect detection/classification toward **elicitation and validation** (~20% each)
+- [arXiv:2509.11446](https://arxiv.org/abs/2509.11446) — notes in `papers/01`; raw HTML deleted after extract
+- LLM4RE shifted from NLP4RE’s defect detection/classification toward **elicitation and validation** (15 studies, **20%** each)
 - Prompting: zero-shot 44%, few-shot 29%, **RAG 6%**, **interactive prompting 5%**
 - GPT-family ~90%; **lab experiments 75%**, field studies **7%**
+- Their task×method bubble chart: **requirements elicitation field studies = 1** (lab = 11). Validation field studies = 1 (lab = 12).
 - 61% share code/prompts; only **16%** share datasets
 - Tools exist (21) but most work is out-of-the-box, not end-to-end workflows
 
-**Use in our paper:** citation for “interactive elicitation and real workflows are under-studied.”
+**Use in our paper:** “interactive elicitation in the field is almost absent.” Cite `zadenoori-fig-eval-methods.png`.
 
 ### Cheng et al., 2026 — GenAI for RE SLR (238 papers, 2019–May 2025)
 

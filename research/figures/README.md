@@ -18,6 +18,10 @@ Do not present a baseline figure as if it were our result.
 | `baselines/llmrei-fig1.png` | LLMREI-short | Interview dialogue (roles, permissions, sync, integrations) | Example of elicitation-without-critique (accepts “real time” at face value) |
 | `baselines/llmrei-fig4.png` | LLMREI | Boxplots: elicited vs partially elicited recall, long vs short prompts | Short prompts can beat long on recall; still lots of partial elicitation |
 | `baselines/guide-fig1.png` | GUIDE GUI paper | Figma plugin / MD component generation | **Not core RE.** Only if we discuss HTML demo as downstream |
+| `baselines/zadenoori-fig-eval-methods.png` | Zadenoori LLM4RE SLR | Task × empirical method. Elicitation **field study count = 1**; lab = 11 | Cite when we say industrial eval is rare *inside elicitation*, not only overall |
+| `baselines/zadenoori-fig-io-artefacts.png` | Zadenoori LLM4RE SLR | Input×output. Interview scripts ≈ empty | Our dialogue→decision→spec path is not the crowded cell |
+| `baselines/zadenoori-fig1-scheme.svg` | Zadenoori Fig. 1 | LLM4RE conceptual scheme | Optional |
+| `baselines/zadenoori-fig2-search.svg` | Zadenoori Fig. 2 | Search funnel 244→74 | Optional |
 
 ## Figures we still want from PDFs
 
