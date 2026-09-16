@@ -32,6 +32,9 @@ Do not leave copyrighted PDFs in git. The durable record is our notes + extracte
 | Public dataset plan | [`12-PUBLIC-DATASET.md`](12-PUBLIC-DATASET.md) | L0–L2 |
 | Company context | [`11-COMPANY-INDUSTRIAL-CONTEXT.md`](11-COMPANY-INDUSTRIAL-CONTEXT.md) | No secrets |
 | Dify product | repo root `business-analyst-fa-chatflow.dify.yml`, `WORKFLOW.md` | Not the paper |
+| Research code | repo root [`src/reqdecide/`](../src/reqdecide), [`tests/`](../tests), `pyproject.toml` | Map in [`08-SOFTWARE-AND-IMPLEMENTATION.md`](08-SOFTWARE-AND-IMPLEMENTATION.md) |
+| Fetched corpora (V1–V3) | repo root `data/` | **Git-ignored.** Rebuild with the adapters; never commit issue dumps |
+| Validation ladder V1–V4 | [`06-EVALUATION-FRAMEWORK.md`](06-EVALUATION-FRAMEWORK.md) | Which tier compares against whose numbers |
 
 ## Extracted baseline figures (kept)
 

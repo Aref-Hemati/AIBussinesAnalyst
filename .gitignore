@@ -7,3 +7,11 @@ __pycache__/
 .DS_Store
 Thumbs.db
 .tools/
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+.venv/
+
+# Fetched corpora. Rebuild with the adapters; do not commit issue dumps.
+data/
